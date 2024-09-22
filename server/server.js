@@ -1,27 +1,30 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const cors = require('cors'); 
 const dotenv = require('dotenv');
-const connectDB = require('./config/db'); // Import MongoDB connection function
-const authRoutes = require('./routes/auth'); // Import auth routes
+const connectDB = require('./config/db'); 
+const authRoutes = require('./routes/auth'); 
+const authenticateToken = require('./middleware/authenticateToken'); 
+const verifyToken = require('./middleware/middlewareRouter'); 
 
 dotenv.config();
-
 const app = express();
 app.use(cors());
-app.use(express.json()); // Parse incoming JSON requests
-
+app.use(express.json()); 
 // Connect to MongoDB
 connectDB();
-
 // Use the auth routes
-app.use('/api/auth', authRoutes); // Use auth routes under '/api/auth' path
-
+app.use('/api/auth', authRoutes);
+// Protected route example
+app.post('/api/me', authenticateToken, (req, res) => {
+    res.json({ user: req.user }); 
+});
+app.post('/api/verify', verifyToken, (req, res) => {
+    res.json({ user: req.user }); 
+});
 // Test route to ensure server is running
 app.get('/', (req, res) => {
     res.send('Server is running!');
 });
-
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
